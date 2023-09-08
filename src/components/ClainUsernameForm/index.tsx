@@ -1,9 +1,11 @@
 import { Button, Text, TextInput } from '@ignite-ui/react'
 import { ArrowRight } from '@phosphor-icons/react'
-import { Form, FormAnnotation } from './styles'
+import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+
+import { Form, FormAnnotation } from './styles'
 
 const ClaimUsernameFormSchema = z.object({
   username: z
@@ -21,30 +23,34 @@ export function ClaimUsernameForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ClaimUsernameFormData>({
     resolver: zodResolver(ClaimUsernameFormSchema),
   })
 
+  const router = useRouter()
+
   async function handleClaimUsername(data: ClaimUsernameFormData) {
-    console.log(data)
+    const { username } = data
+
+    await router.push(`/register?username=${username}`)
   }
 
   return (
     <>
-    <Form as="form" onSubmit={handleSubmit(handleClaimUsername)}>
-      <TextInput
-        size="sm"
-        prefix="ignite.com/"
-        placeholder="seu-usuário"
-        {...register('username')}
-      />
+      <Form as="form" onSubmit={handleSubmit(handleClaimUsername)}>
+        <TextInput
+          size="sm"
+          prefix="ignite.com/"
+          placeholder="seu-usuário"
+          {...register('username')}
+        />
 
-      <Button size="sm" type="submit">
-        Reservar
-        <ArrowRight />
-      </Button>
-    </Form>
+        <Button size="sm" type="submit" disabled={isSubmitting}>
+          Reservar
+          <ArrowRight />
+        </Button>
+      </Form>
 
       <FormAnnotation>
         <Text size="sm">
@@ -53,7 +59,6 @@ export function ClaimUsernameForm() {
             : 'Digite o nome do usuário desejado'}
         </Text>
       </FormAnnotation>
-
     </>
   )
 }
